@@ -34,11 +34,11 @@ class MainActivity : AppCompatActivity() {
 
         requestQueue = Volley.newRequestQueue(this)
 
-        titleTextView = findViewById<TextView>(R.id.comicTitleTextView)
-        descriptionTextView = findViewById<TextView>(R.id.comicDescriptionTextView)
-        numberEditText = findViewById<EditText>(R.id.comicNumberEditText)
-        showButton = findViewById<Button>(R.id.showComicButton)
-        comicImageView = findViewById<ImageView>(R.id.comicImageView)
+        titleTextView = findViewById(R.id.comicTitleTextView)
+        descriptionTextView = findViewById(R.id.comicDescriptionTextView)
+        numberEditText = findViewById(R.id.comicNumberEditText)
+        showButton = findViewById(R.id.showComicButton)
+        comicImageView = findViewById(R.id.comicImageView)
 
         showButton.setOnClickListener {
             downloadComic(numberEditText.text.toString())
@@ -50,7 +50,8 @@ class MainActivity : AppCompatActivity() {
         requestQueue.add(
             JsonObjectRequest(
                 "https://xkcd.com/$comicId/info.0.json",
-                { showComic(it) },
+                { showComic(it)
+                saveComic(it)},
                 {})
         )
     }
@@ -59,18 +60,13 @@ class MainActivity : AppCompatActivity() {
         titleTextView.text = comicObject.getString("title")
         descriptionTextView.text = comicObject.getString("alt")
         Picasso.get().load(comicObject.getString("img")).into(comicImageView)
-        saveComic(
-            comicObject.getString("title"),
-            comicObject.getString("alt"),
-            comicObject.getString("img")
-        )
     }
 
-    private fun saveComic(title: String, description: String, imageUrl: String) {
+    private fun saveComic(comicObject: JSONObject) {
         with(preferences.edit()) {
-            putString(COMIC_TITLE_KEY, title)
-            putString(COMIC_DESCRIPTION_KEY, description)
-            putString(COMIC_IMAGE_URL_KEY, imageUrl)
+            putString(COMIC_TITLE_KEY, comicObject.getString("title"))
+            putString(COMIC_DESCRIPTION_KEY, comicObject.getString("alt"))
+            putString(COMIC_IMAGE_URL_KEY, comicObject.getString("img"))
             apply()
         }
     }
